@@ -1,0 +1,58 @@
+﻿Project 1b Report
+Group Members: Joshua Kim, Danny Cardenas
+
+
+Workload:
+Joshua Kim: Task 1, Task 3 synch.cc functions, hashchain.cc for Task 1 and 3
+Danny Cardenas: Task 2, Task 3 rwlock.cc functions, hashchain.cc for Task 2
+
+
+Everything is completed
+
+
+Design Ideas/ Code Flow:
+
+
+Task 1:
+For the hashchain.cc files by following the implementation of mutex in part a of the project, we used the macros in the top of the file. SYNC_INIT, SYNC_DESTROY, START_READ(), START_WRITE(), END_READ(), END_WRITE(). For the initialization we made Semaphore on each of the indexes of the hash table. For the SYNC_DESTROY we delete the dynamically allocated Semaphore. For the startRead and startWrite function we call the P() from the semaphore and signals for waiting. While for endWrite and endRead will call the V() from the specific hash table index is for waking a waiter.
+ 
+
+
+Task 2:
+
+
+For Lock(char* debugName):
+Constructor of Lock so we initialize the private fields and set the Lock to be in the free state when a new Lock is constructed.
+
+
+For Acquire():
+Waits till a lock is free and once there is a lock in the free state, the lock will then be acquired for the current thread. Interrupts are disabled to prevent interruption while checking and altering the lock’s state. We then check if the lock is in a busy state, if so then the thread will be placed on the wait queue and go to sleep. If the lock is not in the busy state, it is free, then we will change the lock’s value to be busy because the lock will be acquired for the current thread. After whichever scenario is chosen based on the lock’s value, we will then re-enable interrupts.
+
+
+For Release():
+As the name suggests, the function releases a lock that was acquired previously by the current thread, then wakes up just one of the threads that is in queue waiting for a lock. Interrupts are disabled to prevent interruption while checking and altering the lock’s state. We will check if there are any threads in the wait queue because this will mean they are waiting on the lock. If there is a thread on the waiting queue, we will take it off and place it onto the ready queue. If no threads are currently in the waiting queue, then we can change the lock’s value to represent that the lock is free. After all that is done, we re-enable interrupts as we are done checking and adjusting the state of the lock.
+
+
+For hashchain.cc:
+Refer to task 1, but instead of using nachos semaphore, we use our implemented nachos lock.
+
+
+Task 3:
+
+
+For Condition(char* debugName):
+We define a name easier for debugging and make a queue for threads waiting on the condition variable.
+
+
+~Condition():
+Deletes the queue
+Wait(Lock *conditionLock):
+This checks if the lock is held by the current thread. Then we make a semaphore and append it to the queue. We release the condition lock and call the P() from the Semaphore class. Then we will acquire the lock and delete the dynamically allocated semaphore.
+
+
+Signal(Lock *conditionLock):
+This checks if the lock is held by the current thread. If the queue is not empty, then we remove the semaphore in the queue and wake up by calling the V().
+
+
+BroadCast(Lock *conditionLock):
+While the queue is not empty the program will keep calling the signal function. Which will wake everyone by repeatedly calling the Signal(conditionLock).
